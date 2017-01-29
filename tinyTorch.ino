@@ -1,6 +1,9 @@
-// fuses L/H/E 0x62 / 0xD6 / 0xFF
+// ATtinyX5 fuses L/H/E 0x62 / 0xD6 / 0xFF (1MHz internal clock, 1.8V BOD)
 // set fuses:
 // avrdude -c stk500v2 -P usb -p t45 -U lfuse:w:0x62:m -U hfuse:w:0xd6:m -U efuse:w:0xff:m -v
+//
+// ATtiny84A fuses L/H/E 0x62 / 0xD6 / 0xFF (1MHz internal clock, 1.8V BOD)
+// avrdude -c stk500v2 -P usb -p t84a -U lfuse:w:0x62:m -U hfuse:w:0xd6:m -U efuse:w:0xff:m -v
 
 #include <avr/sleep.h>
 #include <Button.h>            //http://github.com/JChristensen/Button
