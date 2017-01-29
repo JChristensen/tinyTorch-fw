@@ -27,7 +27,8 @@ const bool
 const uint32_t
     DEBOUNCE_MS(25),
     LONG_PRESS(1000),
-    SLEEP(30000);
+    SHORT_SLEEP(60000),
+    LONG_SLEEP(300000);
 
 const int MIN_VCC(3500);         //millivolts
 
@@ -43,12 +44,25 @@ uint8_t br[] = {1, 1};         //led brightness
 uint8_t l = 0;                 //index for leds and brightness arrays
 unsigned long ms;              //current time from millis()
 unsigned long msLast;          //last time a button was pressed
+unsigned long sleepInterval;   //auto power off interval. stay on forever if zero.
 
 void setup(void)
 {
     pinMode(REG_EN, OUTPUT);
     digitalWrite(REG_EN, HIGH);
     delay(5);
+    
+    //check to see if the user wants to set an auto power-off interval
+    btnDn.read();
+    btnUp.read();
+    if (btnDn.isPressed())
+    {
+        sleepInterval = SHORT_SLEEP;
+    }
+    else if (btnUp.isPressed())
+    {
+        sleepInterval = LONG_SLEEP;
+    }
 
     for (uint8_t i=0; i<sizeof(led); i++)
     {
@@ -56,6 +70,15 @@ void setup(void)
         analogWrite(led[i], 0);
     }
     analogWrite(led[l], br[l]);
+    
+    //wait for button release so as not to adjust brightness
+    btnUp.read();
+    btnDn.read();
+    while (btnDn.isPressed() || btnUp.isPressed())
+    {
+        btnUp.read();
+        btnDn.read();
+    }
 }
 
 void loop(void)
@@ -119,7 +142,7 @@ void loop(void)
         while (!btnDn.wasReleased()) btnDn.read();
         gotoSleep();
     }
-    else if (ms - msLast >= SLEEP)
+    else if (sleepInterval > 0 && ms - msLast >= sleepInterval)
     {
         ledsOff();
         gotoSleep();
@@ -192,3 +215,4 @@ int readVcc(void)
     loop_until_bit_is_clear(ADCSRA, ADSC);    //wait for it to complete
     return 1126400L / ADC;                    //calculate AVcc in mV (1.1 * 1000 * 1024)
 }
+
