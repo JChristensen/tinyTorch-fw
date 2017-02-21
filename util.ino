@@ -2,6 +2,7 @@
 void gotoSleep(void)
 {
     updateParams();                             //update eeprom
+    digitalWrite(REG_EN, LOW);                  //regulator off
     uint8_t adcsra = ADCSRA;                    //save ADCSRA
     ADCSRA &= ~_BV(ADEN);                       //disable ADC
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
@@ -14,7 +15,6 @@ void gotoSleep(void)
     MCUCR = mcucr1;                             // this code has no effect
     MCUCR = mcucr2;
     sei();                                      //ensure interrupts enabled so we can wake up again
-    digitalWrite(REG_EN, LOW);                  //regulator off
     sleep_cpu();                                //go to sleep
     sleep_disable();                            //wake up here
     ADCSRA = adcsra;                            //restore ADCSRA
