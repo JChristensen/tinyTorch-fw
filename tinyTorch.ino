@@ -12,14 +12,14 @@
 
 #include <avr/eeprom.h>
 #include <avr/sleep.h>
-#include <Button.h>            //http://github.com/JChristensen/Button
-#include <movingAvg.h>         //http://github.com/JChristensen/movingAvg
+#include <Button.h>             //http://github.com/JChristensen/Button
+#include <movingAvg.h>          //http://github.com/JChristensen/movingAvg
 
 // pin assignments
 const uint8_t
 UNUSED_PINS[] = {0, 4, 5, 7, 8},
-LED[] = {3, 2},            //led pin numbers (white, red)
-REG_EN(1),                 //regulator enable
+LED[] = {3, 2},                 //led pin numbers (white, red)
+REG_EN(1),                      //regulator enable
 DEBUG_LED(6),
 BTN_UP(9),
 BTN_DN(10);
@@ -31,12 +31,12 @@ INVERT(true);
 
 const uint8_t DEFAULT_BRIGHTNESS(31);
 
-//const uint8_t                  //not needed with newer AVR Libc
-//    BODS(7),                   //BOD Sleep bit in MCUCR
-//    BODSE(2);                  //BOD Sleep enable bit in MCUCR
+//const uint8_t                 //not needed with newer AVR Libc
+//    BODS(7),                  //BOD Sleep bit in MCUCR
+//    BODSE(2);                 //BOD Sleep enable bit in MCUCR
 
 const int
-MIN_VCC(3000),               //millivolts
+MIN_VCC(3000),                  //millivolts
 NOMINAL_VCC(3300);
 
 const uint32_t
@@ -54,12 +54,12 @@ Button btnDn(BTN_DN, PULLUP, INVERT, DEBOUNCE_MS);
 movingAvg Vcc;
 
 // global variables
-uint8_t l(0);                  //index for LED and brightness arrays
-uint8_t br[2];                 //led brightness
-uint32_t sleepInterval;        //auto power off interval. stay on forever if zero.
-uint32_t signature;            //used as a first-time switch to initialize variables in eeprom
-uint32_t ms;                   //current time from millis()
-uint32_t msLast;               //last time a button was pressed
+uint8_t l(0);                   //index for LED and brightness arrays
+uint8_t br[2];                  //led brightness
+uint32_t sleepInterval;         //auto power off interval. stay on forever if zero.
+uint32_t signature;             //used as a first-time switch to initialize variables in eeprom
+uint32_t ms;                    //current time from millis()
+uint32_t msLast;                //last time a button was pressed
 
 // copies of global variables persisted in eeprom
 EEMEM uint8_t l_ee;
@@ -109,9 +109,20 @@ void setup(void)
     for (uint8_t i=0; i<sizeof(LED); i++)
     {
         pinMode(LED[i], OUTPUT);
-        analogWrite(LED[i], 0);
+        digitalWrite(LED[i], LOW);
     }
-    analogWrite(LED[l], br[l]);    //initial setting
+    
+    //blink LEDs then sleep
+    analogWrite(LED[0], DEFAULT_BRIGHTNESS);
+    analogWrite(LED[1], DEFAULT_BRIGHTNESS);
+    delay(250);
+    ledsOff(false);
+    delay(250);
+    analogWrite(LED[0], DEFAULT_BRIGHTNESS);
+    analogWrite(LED[1], DEFAULT_BRIGHTNESS);
+    delay(250);
+    ledsOff(false);
+    gotoSleep();    
 }
 
 void loop(void)
@@ -168,7 +179,7 @@ void loop(void)
         if (br[l] == 0) br[l] = 1;
         analogWrite(LED[l], br[l]);
     }
-    else if (btnUp.pressedFor(LONG_PRESS))    //switch color
+    else if (btnUp.pressedFor(LONG_PRESS))  //switch color
     {
         msLast = ms;
         digitalWrite(LED[l], LOW);
@@ -176,7 +187,7 @@ void loop(void)
         analogWrite(LED[l], br[l]);
         while (!btnUp.wasReleased()) btnUp.read();
     }
-    else if (btnDn.pressedFor(LONG_PRESS))    //turn off
+    else if (btnDn.pressedFor(LONG_PRESS))  //turn off
     {
         ledsOff(true);
         while (!btnDn.wasReleased()) btnDn.read();
@@ -193,7 +204,6 @@ void loop(void)
 //pin change interrupt from one of the buttons wakes the MCU
 ISR(PCINT0_vect)
 {
-    GIMSK = 0;                                  //disable interrupts (only need one to wake up)
+    GIMSK = 0;      //disable interrupts (only need one to wake up)
     PCMSK0 = 0;
 }
-

@@ -41,7 +41,7 @@ void ledsOff(bool fade)
     {
         //calculate a fade interval: longer intervals for lower brightness
         uint8_t nbits(0);
-        for (uint8_t i=0; i<8; i++)    //count the one bits in the brightness
+        for (uint8_t i=0; i<8; i++)     //count the one bits in the brightness
         {
             if (br[l] & 1 << i) ++nbits;
         }
@@ -97,8 +97,7 @@ void initParams(void)
 {
     l = 0;
     br[0] = br[1] = DEFAULT_BRIGHTNESS;
-    sleepInterval = SHORT_POWEROFF;
+    sleepInterval = LONG_POWEROFF;
     signature = TORCH_SIG;
     updateParams();
 }
-
