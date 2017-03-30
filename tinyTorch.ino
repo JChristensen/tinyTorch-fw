@@ -4,6 +4,11 @@
 // Hardware design and firmware are available on GitHub, see:
 // This firmware available at http://goo.gl/xpB4pj
 //
+// Requires the Arduino-Tiny core:
+//  http://code.google.com/archive/p/arduino-tiny/
+//  http://github.com/Coding-Badly/arduino-tiny
+//  http://github.com/Coding-Badly/TinyCore1
+//
 // Set fuses: E:0xFF, H:0xD6, L:0x62 (same as factory settings, except 1.8V BOD)
 // avrdude -p t84 -U lfuse:w:0x62:m -U hfuse:w:0xd6:m -U efuse:w:0xff:m -v
 //
@@ -17,17 +22,17 @@
 
 // pin assignments
 const uint8_t
-UNUSED_PINS[] = {0, 4, 5, 7, 8},
-LED[] = {3, 2},                 //led pin numbers (white, red)
-REG_EN(1),                      //regulator enable
-DEBUG_LED(6),
-BTN_UP(9),
-BTN_DN(10);
+    UNUSED_PINS[] = {0, 4, 5, 7, 8},
+    LED[] = {3, 2},                 //led pin numbers (white, red)
+    REG_EN(1),                      //regulator enable
+    DEBUG_LED(6),
+    BTN_UP(9),
+    BTN_DN(10);
 
 // other constants
 const bool
-PULLUP(true),
-INVERT(true);
+    PULLUP(true),
+    INVERT(true);
 
 const uint8_t DEFAULT_BRIGHTNESS(31);
 
@@ -36,17 +41,17 @@ const uint8_t DEFAULT_BRIGHTNESS(31);
 //    BODSE(2);                 //BOD Sleep enable bit in MCUCR
 
 const int
-MIN_VCC(3000),                  //millivolts
-NOMINAL_VCC(3300);
+    MIN_VCC(3000),                  //millivolts
+    NOMINAL_VCC(3300);
 
 const uint32_t
-DEBOUNCE_MS(25),
-LONG_PRESS(1000),
-NO_POWEROFF(0),
-SHORT_POWEROFF(60000),
-LONG_POWEROFF(300000),
-VCC_READ_INTERVAL(500),
-TORCH_SIG(0xaa55aa55);
+    DEBOUNCE_MS(25),
+    LONG_PRESS(1000),
+    NO_POWEROFF(0),
+    SHORT_POWEROFF(60000),
+    LONG_POWEROFF(300000),
+    VCC_READ_INTERVAL(500),
+    TORCH_SIG(0xaa55aa55);
 
 // object declarations
 Button btnUp(BTN_UP, PULLUP, INVERT, DEBOUNCE_MS);
@@ -70,10 +75,18 @@ EEMEM uint32_t signature_ee;
 void setup(void)
 {
     //pullups on for noise immunity
-    for (uint8_t p=0; p<sizeof(UNUSED_PINS); p++)
+    for (uint8_t p=0; p<sizeof(UNUSED_PINS)/sizeof(UNUSED_PINS[0]); p++)
     {
         pinMode(UNUSED_PINS[p], INPUT_PULLUP);
     }
+
+    //initialize the LED pins
+    for (uint8_t i=0; i<sizeof(LED)/sizeof(LED[0]); i++)
+    {
+        pinMode(LED[i], OUTPUT);
+        digitalWrite(LED[i], LOW);
+    }
+
     pinMode(DEBUG_LED, OUTPUT);
     pinMode(REG_EN, OUTPUT);
     digitalWrite(REG_EN, HIGH);
@@ -105,13 +118,6 @@ void setup(void)
         btnDn.read();
     }
 
-    //initialize the LED pins
-    for (uint8_t i=0; i<sizeof(LED); i++)
-    {
-        pinMode(LED[i], OUTPUT);
-        digitalWrite(LED[i], LOW);
-    }
-    
     //blink LEDs then sleep
     analogWrite(LED[0], DEFAULT_BRIGHTNESS);
     analogWrite(LED[1], DEFAULT_BRIGHTNESS);
@@ -122,7 +128,7 @@ void setup(void)
     analogWrite(LED[1], DEFAULT_BRIGHTNESS);
     delay(250);
     ledsOff(false);
-    gotoSleep();    
+    gotoSleep();
 }
 
 void loop(void)
@@ -183,7 +189,7 @@ void loop(void)
     {
         msLast = ms;
         digitalWrite(LED[l], LOW);
-        if (++l >= sizeof(LED)) l = 0;
+        if (++l >= sizeof(LED)/sizeof(LED[0])) l = 0;
         analogWrite(LED[l], br[l]);
         while (!btnUp.wasReleased()) btnUp.read();
     }
@@ -207,3 +213,4 @@ ISR(PCINT0_vect)
     GIMSK = 0;      //disable interrupts (only need one to wake up)
     PCMSK0 = 0;
 }
+

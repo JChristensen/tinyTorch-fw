@@ -56,7 +56,7 @@ void ledsOff(bool fade)
     }
 
     //ensure both are off
-    for (uint8_t i=0; i<sizeof(LED); i++)
+    for (uint8_t i=0; i<sizeof(LED)/sizeof(LED[0]); i++)
     {
         digitalWrite(LED[i], LOW);
     }
