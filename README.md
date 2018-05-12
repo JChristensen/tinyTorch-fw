@@ -2,7 +2,17 @@
 https://github.com/JChristensen/tinyTorch  
 https://github.com/JChristensen/tinyTorch-fw  
 README file  
-Jack Christensen Jan-2017
+Jack Christensen  
+Jan-2017
+
+## License
+tinyTorch Copyright (C) 2018 Jack Christensen GNU GPL v3.0
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License v3.0 as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/gpl.html>
 
 ## Introduction ##
 
@@ -32,8 +42,5 @@ To program **tinyTorch** to turn off automatically after five minutes, use the s
 To disable the automatic turn-off feature, use the steps above but press and hold both buttons instead.
 
 When the batteries are exhausted, **tinyTorch** will blink the red and white LEDs alternately and then turn off. The brightness levels will be set to the minimum values. This may allow **tinyTorch** to continue to operate at a lower brightness level for a limited time but it is advisable to replace the batteries soon to prevent leakage.
-
-## CC BY-SA ##
-"tinyTorch" by Jack Christensen is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ![](https://raw.githubusercontent.com/JChristensen/tinyTorch/master/board-photo.jpg)
