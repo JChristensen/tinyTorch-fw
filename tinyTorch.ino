@@ -4,10 +4,8 @@
 // Hardware design and firmware are available on GitHub, see:
 // This firmware available at http://goo.gl/xpB4pj
 //
-// Requires the Arduino-Tiny core:
-//  http://code.google.com/archive/p/arduino-tiny/
-//  http://github.com/Coding-Badly/arduino-tiny
-//  http://github.com/Coding-Badly/TinyCore1
+// Requires the ATTiny Core,
+//  https://github.com/SpenceKonde/ATTinyCore
 //
 // Set fuses: E:0xFF, H:0xD6, L:0x62 (same as factory settings, except 1.8V BOD)
 // avrdude -p t84 -U lfuse:w:0x62:m -U hfuse:w:0xd6:m -U efuse:w:0xff:m -v
@@ -17,8 +15,8 @@
 
 #include <avr/eeprom.h>
 #include <avr/sleep.h>
-#include <Button.h>             //http://github.com/JChristensen/Button
-#include <movingAvg.h>          //http://github.com/JChristensen/movingAvg
+#include <JC_Button.h>          // https://github.com/JChristensen/JC_Button
+#include <movingAvg.h>          // https://github.com/JChristensen/movingAvg
 
 // pin assignments
 const uint8_t
@@ -28,11 +26,6 @@ const uint8_t
     DEBUG_LED(6),
     BTN_UP(9),
     BTN_DN(10);
-
-// other constants
-const bool
-    PULLUP(true),
-    INVERT(true);
 
 const uint8_t DEFAULT_BRIGHTNESS(31);
 
@@ -45,7 +38,7 @@ const int
     NOMINAL_VCC(3300);
 
 const uint32_t
-    DEBOUNCE_MS(25),
+    DEBOUNCE_MS(40),
     LONG_PRESS(1000),
     NO_POWEROFF(0),
     SHORT_POWEROFF(60000),
@@ -54,9 +47,9 @@ const uint32_t
     TORCH_SIG(0xaa55aa55);
 
 // object declarations
-Button btnUp(BTN_UP, PULLUP, INVERT, DEBOUNCE_MS);
-Button btnDn(BTN_DN, PULLUP, INVERT, DEBOUNCE_MS);
-movingAvg Vcc;
+Button btnUp(BTN_UP, DEBOUNCE_MS);
+Button btnDn(BTN_DN, DEBOUNCE_MS);
+movingAvg Vcc(6);
 
 // global variables
 uint8_t l(0);                   //index for LED and brightness arrays
@@ -87,6 +80,8 @@ void setup(void)
         digitalWrite(LED[i], LOW);
     }
 
+    btnDn.begin();
+    btnUp.begin();
     pinMode(DEBUG_LED, OUTPUT);
     pinMode(REG_EN, OUTPUT);
     digitalWrite(REG_EN, HIGH);
