@@ -33,13 +33,17 @@ void gotoSleep(bool fadeLEDs)
     ms = millis();
     msLast = ms;
 
-    // wait for button release
+    // wait for button release, but don't assume either is pressed; it is
+    // possible to wake the MCU and not catch a very brief button press.
     btnUp.read();
     btnDn.read();
-    while (!btnDn.wasReleased() && !btnUp.wasReleased())
+    if (btnDn.isPressed() || btnUp.isPressed())
     {
-        btnUp.read();
-        btnDn.read();
+        while (!btnDn.wasReleased() && !btnUp.wasReleased())
+        {
+            btnUp.read();
+            btnDn.read();
+        }
     }
     digitalWrite(DEBUG_LED, LOW);
 }
