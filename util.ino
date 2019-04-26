@@ -28,6 +28,7 @@ void gotoSleep(bool fadeLEDs)
 
     digitalWrite(REG_EN, HIGH);                 // regulator on
     delay(10);
+    digitalWrite(DEBUG_LED, HIGH);
     analogWrite(LED[l], br[l]);                 // restore last LED setting
     ms = millis();
     msLast = ms;
@@ -40,6 +41,7 @@ void gotoSleep(bool fadeLEDs)
         btnUp.read();
         btnDn.read();
     }
+    digitalWrite(DEBUG_LED, LOW);
 }
 
 // turn off the LEDs, optional fade
@@ -68,6 +70,7 @@ void ledsOff(bool fade)
     {
         digitalWrite(LED[i], LOW);
     }
+    digitalWrite(DEBUG_LED, LOW);
 }
 
 // read 1.1V reference against Vcc
@@ -109,4 +112,3 @@ void initParams()
     signature = TORCH_SIG;
     updateParams();
 }
-

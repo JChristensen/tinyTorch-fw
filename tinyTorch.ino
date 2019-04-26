@@ -100,6 +100,7 @@ void setup()
     while (btnDn.read() || btnUp.read());
 
     // blink LEDs then sleep
+    digitalWrite(DEBUG_LED, HIGH);
     analogWrite(LED[0], DEFAULT_BRIGHTNESS);
     analogWrite(LED[1], DEFAULT_BRIGHTNESS);
     delay(250);
@@ -108,6 +109,7 @@ void setup()
     analogWrite(LED[0], DEFAULT_BRIGHTNESS);
     analogWrite(LED[1], DEFAULT_BRIGHTNESS);
     delay(250);
+    digitalWrite(DEBUG_LED, LOW);
     gotoSleep(false);
 }
 
@@ -183,4 +185,3 @@ ISR(PCINT0_vect)
     GIMSK = 0;      // disable interrupts (only need one to wake up)
     PCMSK0 = 0;
 }
-
