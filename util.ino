@@ -4,9 +4,11 @@
 // GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
 
 // put the mcu to sleep
-void gotoSleep()
+void gotoSleep(bool fadeLEDs)
 {
     updateParams();                             // update eeprom
+    ledsOff(fadeLEDs);                          // turn LEDs off
+    while (btnDn.read() || btnUp.read());       // ensure no buttons pressed
     digitalWrite(REG_EN, LOW);                  // regulator off
     uint8_t adcsra = ADCSRA;                    // save ADCSRA
     ADCSRA &= ~_BV(ADEN);                       // disable ADC
@@ -19,7 +21,7 @@ void gotoSleep()
     uint8_t mcucr2 = mcucr1 & ~_BV(BODSE);      // if the MCU does not have BOD disable capability,
     MCUCR = mcucr1;                             //   this code has no effect
     MCUCR = mcucr2;
-    sei();                                      // ensure interrupts enabled so we can wake up again
+    sei();                                      // enable interrupts so we can wake up again
     sleep_cpu();                                // go to sleep
     sleep_disable();                            // wake up here
     ADCSRA = adcsra;                            // restore ADCSRA
@@ -30,6 +32,7 @@ void gotoSleep()
     ms = millis();
     msLast = ms;
 
+    // wait for button release
     btnUp.read();
     btnDn.read();
     while (!btnDn.wasReleased() && !btnUp.wasReleased())

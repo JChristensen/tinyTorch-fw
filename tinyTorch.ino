@@ -8,6 +8,7 @@
 //
 // Works with the ATTiny Core,
 //   https://github.com/SpenceKonde/ATTinyCore
+// (Pin mapping CCW, Clock 1MHz internal, LTO disabled, BOD 1.8V)
 //
 // Set fuses: E:0xFF, H:0xD6, L:0x62 (same as factory settings, except 1.8V BOD)
 // avrdude -p t84 -U lfuse:w:0x62:m -U hfuse:w:0xd6:m -U efuse:w:0xff:m -v
@@ -82,8 +83,6 @@ void setup()
     readParams();
 
     // check to see if the user wants to set an auto power-off interval
-    btnDn.read();
-    btnUp.read();
     if (btnDn.isPressed() && btnUp.isPressed())
     {
         sleepInterval = NO_POWEROFF;
@@ -98,13 +97,7 @@ void setup()
     }
 
     // wait for button release so as not to affect brightness
-    btnUp.read();
-    btnDn.read();
-    while (btnDn.isPressed() || btnUp.isPressed())
-    {
-        btnUp.read();
-        btnDn.read();
-    }
+    while (btnDn.read() || btnUp.read());
 
     // blink LEDs then sleep
     analogWrite(LED[0], DEFAULT_BRIGHTNESS);
@@ -115,8 +108,7 @@ void setup()
     analogWrite(LED[0], DEFAULT_BRIGHTNESS);
     analogWrite(LED[1], DEFAULT_BRIGHTNESS);
     delay(250);
-    ledsOff(false);
-    gotoSleep();
+    gotoSleep(false);
 }
 
 void loop()
@@ -148,9 +140,8 @@ void loop()
                 analogWrite(LED[1], DEFAULT_BRIGHTNESS);
                 delay(125);
             }
-            ledsOff(false);
             br[0] = br[1] = 1;          // minimum brightness
-            gotoSleep();
+            gotoSleep(false);
         }
     }
 
@@ -173,19 +164,16 @@ void loop()
         digitalWrite(LED[l], LOW);
         if (++l >= sizeof(LED)/sizeof(LED[0])) l = 0;
         analogWrite(LED[l], br[l]);
-        while (!btnUp.wasReleased()) btnUp.read();
+        while (btnUp.read());                 //wait for release
     }
     else if (btnDn.pressedFor(LONG_PRESS))  // turn off
     {
-        ledsOff(true);
-        while (!btnDn.wasReleased()) btnDn.read();
-        gotoSleep();
+        gotoSleep(true);
     }
     // auto power-off
     else if (sleepInterval > NO_POWEROFF && ms - msLast >= sleepInterval)
     {
-        ledsOff(true);
-        gotoSleep();
+        gotoSleep(true);
     }
 }
 
